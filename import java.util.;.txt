@@ -1,0 +1,288 @@
+import java.util.*;
+
+class Student {
+    int id;
+    String name;
+    int attendancePresent = 0;
+    int attendanceTotal = 0;
+    double feesPaid = 0;
+    double totalFees = 10000;
+    List<String> books = new ArrayList<>();
+    String feedback = "No feedback";
+
+    Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    double getDueFees() {
+        return totalFees - feesPaid;
+    }
+
+    double getAttendancePercentage() {
+        if (attendanceTotal == 0) return 0;
+        return (attendancePresent * 100.0) / attendanceTotal;
+    }
+}
+
+public class StudentPortal {
+
+    static Scanner sc = new Scanner(System.in);
+    static List<Student> students = new ArrayList<>();
+
+    static String adminUser = "admin";
+    static String adminPass = "1234";
+    static String teacherPass = "1234";
+
+    public static void main(String[] args) {
+
+        while (true) {
+            System.out.println("\n=== Student Management Portal ===");
+            System.out.println("1. Admin");
+            System.out.println("2. Teacher");
+            System.out.println("3. Student");
+            System.out.println("4. Exit");
+
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    adminLogin();
+                    break;
+                case 2:
+                    teacherLogin();
+                    break;
+                case 3:
+                    studentLogin();
+                    break;
+                case 4:
+                    System.exit(0);
+            }
+        }
+    }
+
+    // ADMIN LOGIN
+    static void adminLogin() {
+        System.out.print("Username: ");
+        String user = sc.next();
+
+        System.out.print("Password: ");
+        String pass = sc.next();
+
+        if (user.equals(adminUser) && pass.equals(adminPass)) {
+            adminMenu();
+        } else {
+            System.out.println("Invalid Admin Login");
+        }
+    }
+
+    // ADMIN MENU
+    static void adminMenu() {
+        while (true) {
+            System.out.println("\n--- Admin Panel ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. View Students");
+            System.out.println("3. Update Fees");
+            System.out.println("4. Distribute Book");
+            System.out.println("5. Back");
+
+            int ch = sc.nextInt();
+
+            switch (ch) {
+                case 1:
+                    addStudent();
+                    break;
+                case 2:
+                    viewStudents();
+                    break;
+                case 3:
+                    updateFees();
+                    break;
+                case 4:
+                    distributeBook();
+                    break;
+                case 5:
+                    return;
+            }
+        }
+    }
+
+    static void addStudent() {
+        System.out.print("Student ID: ");
+        int id = sc.nextInt();
+
+        System.out.print("Student Name: ");
+        String name = sc.next();
+
+        students.add(new Student(id, name));
+
+        System.out.println("Student added successfully.");
+    }
+
+    static void viewStudents() {
+        for (Student s : students) {
+            System.out.println(s.id + " " + s.name + " Fees Due: " + s.getDueFees());
+        }
+    }
+
+    static void updateFees() {
+        System.out.print("Enter Student ID: ");
+        int id = sc.nextInt();
+
+        for (Student s : students) {
+            if (s.id == id) {
+                System.out.print("Enter payment amount: ");
+                double amt = sc.nextDouble();
+                s.feesPaid += amt;
+                System.out.println("Payment Updated.");
+                return;
+            }
+        }
+    }
+
+    static void distributeBook() {
+        System.out.print("Student ID: ");
+        int id = sc.nextInt();
+
+        for (Student s : students) {
+            if (s.id == id) {
+                System.out.print("Book name: ");
+                String book = sc.next();
+                s.books.add(book);
+                System.out.println("Book assigned.");
+                return;
+            }
+        }
+    }
+
+    // TEACHER LOGIN
+    static void teacherLogin() {
+        System.out.print("Teacher Password: ");
+        String pass = sc.next();
+
+        if (pass.equals(teacherPass)) {
+            teacherMenu();
+        } else {
+            System.out.println("Invalid password");
+        }
+    }
+
+    // TEACHER MENU
+    static void teacherMenu() {
+        while (true) {
+            System.out.println("\n--- Teacher Panel ---");
+            System.out.println("1. Mark Attendance");
+            System.out.println("2. View Book Distribution");
+            System.out.println("3. Give Feedback");
+            System.out.println("4. Back");
+
+            int ch = sc.nextInt();
+
+            switch (ch) {
+                case 1:
+                    markAttendance();
+                    break;
+                case 2:
+                    viewBooks();
+                    break;
+                case 3:
+                    giveFeedback();
+                    break;
+                case 4:
+                    return;
+            }
+        }
+    }
+
+    static void markAttendance() {
+        for (Student s : students) {
+            System.out.println("Mark attendance for " + s.name + " (1=Present 0=Absent)");
+            int val = sc.nextInt();
+
+            s.attendanceTotal++;
+            if (val == 1)
+                s.attendancePresent++;
+        }
+    }
+
+    static void viewBooks() {
+        for (Student s : students) {
+            System.out.println(s.name + " Books: " + s.books);
+        }
+    }
+
+    static void giveFeedback() {
+        System.out.print("Student ID: ");
+        int id = sc.nextInt();
+
+        sc.nextLine();
+        for (Student s : students) {
+            if (s.id == id) {
+                System.out.print("Enter feedback: ");
+                s.feedback = sc.nextLine();
+                return;
+            }
+        }
+    }
+
+    // STUDENT LOGIN
+    static void studentLogin() {
+        System.out.print("Enter Student ID: ");
+        int id = sc.nextInt();
+
+        for (Student s : students) {
+            if (s.id == id) {
+                studentMenu(s);
+                return;
+            }
+        }
+
+        System.out.println("Student not found");
+    }
+
+    static void studentMenu(Student s) {
+        while (true) {
+            System.out.println("\n--- Student Dashboard ---");
+            System.out.println("1. View Attendance");
+            System.out.println("2. View Fees");
+            System.out.println("3. View Books");
+            System.out.println("4. View Feedback");
+            System.out.println("5. Pay Fees");
+            System.out.println("6. Back");
+
+            int ch = sc.nextInt();
+
+            switch (ch) {
+                case 1:
+                    System.out.println("Attendance %: " + s.getAttendancePercentage());
+                    break;
+                case 2:
+                    System.out.println("Paid: " + s.feesPaid);
+                    System.out.println("Due: " + s.getDueFees());
+                    break;
+                case 3:
+                    System.out.println("Books: " + s.books);
+                    break;
+                case 4:
+                    System.out.println("Feedback: " + s.feedback);
+                    break;
+                case 5:
+                    payFees(s);
+                    break;
+                case 6:
+                    return;
+            }
+        }
+    }
+
+    static void payFees(Student s) {
+        System.out.print("Enter amount: ");
+        double amt = sc.nextDouble();
+        s.feesPaid += amt;
+
+        System.out.println("\n--- Receipt ---");
+        System.out.println("Student: " + s.name);
+        System.out.println("Paid: " + amt);
+        System.out.println("Remaining: " + s.getDueFees());
+    }
+}
